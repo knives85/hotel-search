@@ -24,14 +24,14 @@ const CSVPageSize = 10_000
 var StarRatingOptions = []string{"ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "UNRATED"}
 
 // IntRange is the closed integer interval [Min, Max] used for review-score
-// and number-of-reviews filters. Translated from Kotlin's IntRange.
+// and number-of-reviews filters.
 type IntRange struct {
 	Min int
 	Max int
 }
 
 // Int64Range is the closed interval [Min, Max] over int64. Used for the
-// creation-date filter (epoch millis). Translated from Kotlin's LongRange.
+// creation-date filter (epoch millis).
 type Int64Range struct {
 	Min int64
 	Max int64
@@ -46,7 +46,6 @@ type Int64Range struct {
 type HotelSearchQuery struct {
 	UniqueID             *int64
 	UniqueIDs            []int64
-	GiataID              *int64
 	HotelName            *string
 	SellStatus           *bool
 	StarRatings          []string
@@ -103,4 +102,10 @@ type Suggestion struct {
 type Job struct {
 	ID     string
 	Status string
+}
+
+// InventoryList is a saved set of filters shown on /inventory-lists.
+type InventoryList struct {
+	ID   string
+	Name string
 }

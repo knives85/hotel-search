@@ -3,8 +3,6 @@ package web
 // HotelSearchParams is the raw, typed input collected from the /hotels query
 // string. Nil pointers / empty strings / nil slices mean "absent". The
 // translation to the normalised domain.HotelSearchQuery is buildQuery's job.
-//
-// Mirrors the parameter list of the Kotlin HotelSearchController endpoints.
 type HotelSearchParams struct {
 	UniqueID *int64
 

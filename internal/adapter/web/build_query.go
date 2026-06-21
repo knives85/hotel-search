@@ -8,8 +8,7 @@ import (
 )
 
 // buildQuery normalises the raw HTTP-bound HotelSearchParams into the domain
-// HotelSearchQuery consumed by use cases. Mirrors the private buildQuery
-// helper of the Kotlin HotelSearchController:
+// HotelSearchQuery consumed by use cases:
 //
 //   - blank strings and empty slices become nil ("absent" in the domain),
 //   - star ratings outside the closed option set are dropped,
@@ -25,8 +24,6 @@ func buildQuery(p HotelSearchParams) (domain.HotelSearchQuery, error) {
 
 	return domain.HotelSearchQuery{
 		UniqueID:             p.UniqueID,
-		GiataID:              p.GiataID,
-		InternalCityID:       p.InternalCityID,
 		HotelName:            nilIfBlank(p.HotelName),
 		SellStatus:           p.SellStatus,
 		StarRatings:          nilIfEmpty(filterStarRatings(p.StarRatings)),
@@ -41,8 +38,6 @@ func buildQuery(p HotelSearchParams) (domain.HotelSearchQuery, error) {
 		BadgeCodes:           nilIfEmpty(p.BadgeCodes),
 		PoiCodes:             nilIfEmpty(p.PoiCodes),
 		NeighbourhoodCodes:   nilIfEmpty(p.NeighbourhoodCodes),
-		ProviderIDs:          nilIfEmpty(p.ProviderIDs),
-		ProviderStatus:       p.ProviderStatus,
 		ReviewScoreRange:     buildIntRange(p.ReviewScoreMin, p.ReviewScoreMax, 0, 100),
 		NumberOfReviewsRange: buildIntRange(p.NumberOfReviewsMin, p.NumberOfReviewsMax, 0, math.MaxInt),
 		CreationDateRange:    creationDateRange,
@@ -84,8 +79,7 @@ func filterStarRatings(in []string) []string {
 }
 
 // buildIntRange returns nil unless at least one bound was supplied. Missing
-// bounds default to (defaultMin, defaultMax) — same semantics as the Kotlin
-// `IntRange(min ?: defMin, max ?: defMax)` expression.
+// bounds default to (defaultMin, defaultMax).
 func buildIntRange(min, max *int, defaultMin, defaultMax int) *domain.IntRange {
 	if min == nil && max == nil {
 		return nil

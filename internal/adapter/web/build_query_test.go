@@ -31,11 +31,9 @@ func TestBuildQuery_EmptyParams(t *testing.T) {
 
 func TestBuildQuery_PassesThroughScalarPointers(t *testing.T) {
 	p := HotelSearchParams{
-		UniqueID:       ptr(int64(42)),
-		GiataID:        ptr(int64(7)),
-		InternalCityID: ptr(int64(123)),
-		SellStatus:     ptr(true),
-		Page:           3,
+		UniqueID:   ptr(int64(42)),
+		SellStatus: ptr(true),
+		Page:       3,
 	}
 	q, err := buildQuery(p)
 	if err != nil {
@@ -43,12 +41,6 @@ func TestBuildQuery_PassesThroughScalarPointers(t *testing.T) {
 	}
 	if q.UniqueID == nil || *q.UniqueID != 42 {
 		t.Errorf("UniqueID = %v, want 42", q.UniqueID)
-	}
-	if q.GiataID == nil || *q.GiataID != 7 {
-		t.Errorf("GiataID = %v, want 7", q.GiataID)
-	}
-	if q.InternalCityID == nil || *q.InternalCityID != 123 {
-		t.Errorf("InternalCityID = %v, want 123", q.InternalCityID)
 	}
 	if q.SellStatus == nil || *q.SellStatus != true {
 		t.Errorf("SellStatus = %v, want true", q.SellStatus)
@@ -113,7 +105,6 @@ func TestBuildQuery_StarRatings_FilteredAndEmptyToNil(t *testing.T) {
 }
 
 func TestBuildQuery_ListFields_EmptyToNil(t *testing.T) {
-	// All "list of codes" fields share the same takeIf-isNotEmpty rule.
 	p := HotelSearchParams{
 		Types:                []string{},
 		CountryCodes:         []string{},
@@ -126,7 +117,6 @@ func TestBuildQuery_ListFields_EmptyToNil(t *testing.T) {
 		ChainCodes:           []string{},
 		FacilityCodes:        []string{},
 		BadgeCodes:           []string{},
-		ProviderIDs:          []int{},
 	}
 	q, err := buildQuery(p)
 	if err != nil {
@@ -150,14 +140,12 @@ func TestBuildQuery_ListFields_EmptyToNil(t *testing.T) {
 	checkNil("ChainCodes", q.ChainCodes)
 	checkNil("FacilityCodes", q.FacilityCodes)
 	checkNil("BadgeCodes", q.BadgeCodes)
-	checkNil("ProviderIDs", q.ProviderIDs)
 }
 
 func TestBuildQuery_ListFields_PassThrough(t *testing.T) {
 	p := HotelSearchParams{
 		Types:        []string{"Hotels", "Apartments"},
 		CountryCodes: []string{"IT", "FR"},
-		ProviderIDs:  []int{1, 2, 3},
 	}
 	q, err := buildQuery(p)
 	if err != nil {
@@ -168,9 +156,6 @@ func TestBuildQuery_ListFields_PassThrough(t *testing.T) {
 	}
 	if !reflect.DeepEqual(q.CountryCodes, []string{"IT", "FR"}) {
 		t.Errorf("CountryCodes = %v", q.CountryCodes)
-	}
-	if !reflect.DeepEqual(q.ProviderIDs, []int{1, 2, 3}) {
-		t.Errorf("ProviderIDs = %v", q.ProviderIDs)
 	}
 }
 
@@ -272,13 +257,3 @@ func TestBuildQuery_CreationDateRange_InvalidWrapsError(t *testing.T) {
 	}
 }
 
-func TestBuildQuery_ProviderStatusPassedThrough(t *testing.T) {
-	ps := domain.ProviderStatusActive
-	q, err := buildQuery(HotelSearchParams{ProviderStatus: &ps})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if q.ProviderStatus == nil || *q.ProviderStatus != domain.ProviderStatusActive {
-		t.Errorf("ProviderStatus = %v, want ACTIVE", q.ProviderStatus)
-	}
-}

@@ -5,7 +5,16 @@ import "net/http"
 // Handlers for the /hotels routes. Each one currently returns 501 and will be
 // filled in as the OpenSearch/Postgres adapters and templates are ported.
 
-func (s *Server) handleHotelsIndex(w http.ResponseWriter, _ *http.Request) {
+func (s *Server) handleHotelsIndex(w http.ResponseWriter, r *http.Request) {
+	params, err := parseHotelSearchParams(r.URL.Query())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if _, err := buildQuery(params); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	notImplemented(w, "GET /hotels")
 }
 
