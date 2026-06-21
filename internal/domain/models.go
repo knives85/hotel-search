@@ -9,15 +9,66 @@ import "errors"
 // been ported yet. Replace these as the implementation grows.
 var ErrNotImplemented = errors.New("not implemented")
 
+// UNMAPPED_GEO_CODE is the sentinel used by the OpenSearch documents when a
+// geo dimension (city, region, ...) has no resolved code.
+const UNMAPPED_GEO_CODE = "__unmapped__"
+
+// PageSize is the default page size for the hotel search results table.
+const PageSize = 200
+
+// CSVPageSize is the page size used for the CSV export endpoint.
+const CSVPageSize = 10_000
+
+// StarRatingOptions is the closed set of accepted star-rating filter values.
+// Anything outside this set is dropped by buildQuery.
+var StarRatingOptions = []string{"ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "UNRATED"}
+
+// IntRange is the closed integer interval [Min, Max] used for review-score
+// and number-of-reviews filters. Translated from Kotlin's IntRange.
+type IntRange struct {
+	Min int
+	Max int
+}
+
+// Int64Range is the closed interval [Min, Max] over int64. Used for the
+// creation-date filter (epoch millis). Translated from Kotlin's LongRange.
+type Int64Range struct {
+	Min int64
+	Max int64
+}
+
 // HotelSearchQuery captures the filters coming from the search UI.
 //
-// TODO: port the real fields from the Kotlin HotelSearchQuery — country,
-// type, star rating, facilities, chain, geo location, date range and
-// pagination.
+// Pointer fields are "nullable": a nil pointer means the user did not provide
+// that filter. Slice fields use the same convention: nil == absent, non-nil
+// (even if empty) is treated as "present" — but buildQuery normalises empty
+// slices to nil before populating this struct.
 type HotelSearchQuery struct {
-	Term   string
-	Limit  int
-	Offset int
+	UniqueID             *int64
+	UniqueIDs            []int64
+	GiataID              *int64
+	HotelName            *string
+	SellStatus           *bool
+	StarRatings          []string
+	Types                []string
+	CountryCodes         []string
+	CityCodes            []string
+	CityNamePrefix       *string
+	RegionCodes          []string
+	TouristicRegionCodes []string
+	NonAdminCityCodes    []string
+	PoiCodes             []string
+	NeighbourhoodCodes   []string
+	ChainCodes           []string
+	FacilityCodes        []string
+	BadgeCodes           []string
+	ContentScoreRange    *IntRange
+	ReviewScoreRange     *IntRange
+	NumberOfReviewsRange *IntRange
+	LocationScoreRange   *IntRange
+	CreationDateRange    *Int64Range
+	Page                 int
+	PageSize             int
 }
 
 // Hotel is the projection of a hotel document returned to the UI.
@@ -52,10 +103,4 @@ type Suggestion struct {
 type Job struct {
 	ID     string
 	Status string
-}
-
-// InventoryList is a saved set of filters shown on /inventory-lists.
-type InventoryList struct {
-	ID   string
-	Name string
 }

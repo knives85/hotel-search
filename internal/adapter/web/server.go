@@ -48,11 +48,6 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("GET "+p+"/hotels/facility-suggest", s.handleSuggest)
 	s.mux.HandleFunc("GET "+p+"/hotels/chain-suggest", s.handleSuggest)
 
-	// Inventory lists.
-	s.mux.HandleFunc("GET "+p+"/inventory-lists", s.handleInventoryIndex)
-	s.mux.HandleFunc("GET "+p+"/inventory-lists/table", s.handleInventoryTable)
-	s.mux.HandleFunc("GET "+p+"/inventory-lists/{id}/edit-modal", s.handleInventoryEditModal)
-
 	// Jobs.
 	s.mux.HandleFunc("GET "+p+"/jobs", s.handleJobsIndex)
 	s.mux.HandleFunc("GET "+p+"/jobs/{id}/row", s.handleJobRow)
