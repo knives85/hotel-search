@@ -3,18 +3,29 @@
 // working unchanged once the handlers are implemented.
 package web
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/knives85/hotel-search/internal/domain"
+)
+
+// Deps holds the ports and use cases the HTTP layer depends on. Fields may
+// be left nil in tests when the exercised handler does not call into them.
+type Deps struct {
+	Search domain.SearchPort
+}
 
 // Server holds the HTTP router for the app module.
 type Server struct {
 	mux         *http.ServeMux
 	contextPath string
+	deps        Deps
 }
 
 // NewServer builds the router and registers all routes under contextPath
 // (e.g. "/hotel-search").
-func NewServer(contextPath string) *Server {
-	s := &Server{mux: http.NewServeMux(), contextPath: contextPath}
+func NewServer(contextPath string, deps Deps) *Server {
+	s := &Server{mux: http.NewServeMux(), contextPath: contextPath, deps: deps}
 	s.routes()
 	return s
 }

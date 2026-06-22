@@ -1,8 +1,4 @@
 // Command hotel-search starts the HTTP server for the app module.
-//
-// This is the Go reimplementation of the `app` module of Hotel Search.
-// At this stage it only wires configuration and the HTTP routes; the routes
-// return 501 Not Implemented until the corresponding adapters are ported.
 package main
 
 import (
@@ -15,14 +11,34 @@ import (
 	"syscall"
 	"time"
 
+	oslib "github.com/opensearch-project/opensearch-go/v4"
+	"github.com/opensearch-project/opensearch-go/v4/opensearchapi"
+
+	"github.com/knives85/hotel-search/internal/adapter/opensearch"
 	"github.com/knives85/hotel-search/internal/adapter/web"
 	"github.com/knives85/hotel-search/internal/config"
 )
 
+// The OpenSearch index that holds hotel documents. Hardcoded for now; promote
+// to config when more than one environment uses a non-default index name.
+const hotelsIndex = "hotels"
+
 func main() {
 	cfg := config.Load()
 
-	srv := web.NewServer(cfg.ContextPath)
+	osClient, err := opensearchapi.NewClient(opensearchapi.Config{
+		Client: oslib.Config{
+			Addresses: []string{cfg.OpenSearchEndpoint},
+			// TODO: configure the AWS SigV4 signer when targeting Amazon OpenSearch
+			// — use github.com/opensearch-project/opensearch-go/v4/signer/awsv2.
+		},
+	})
+	if err != nil {
+		log.Fatalf("opensearch client init failed: %v", err)
+	}
+	searchRepo := opensearch.NewRepository(osClient, hotelsIndex)
+
+	srv := web.NewServer(cfg.ContextPath, web.Deps{Search: searchRepo})
 	httpServer := &http.Server{
 		Addr:              cfg.Addr,
 		Handler:           srv.Handler(),
@@ -30,7 +46,8 @@ func main() {
 	}
 
 	go func() {
-		log.Printf("listening on %s (context path %q)", cfg.Addr, cfg.ContextPath)
+		log.Printf("listening on %s (context path %q, opensearch %s)",
+			cfg.Addr, cfg.ContextPath, cfg.OpenSearchEndpoint)
 		if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("server error: %v", err)
 		}

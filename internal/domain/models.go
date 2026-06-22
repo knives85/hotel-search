@@ -70,18 +70,70 @@ type HotelSearchQuery struct {
 	PageSize             int
 }
 
-// Hotel is the projection of a hotel document returned to the UI.
-//
-// TODO: port the real fields from the OpenSearch hotel document.
-type Hotel struct {
-	ID   string
-	Name string
+// IndexStatus is the document-level completeness flag emitted by the indexer.
+type IndexStatus string
+
+const (
+	IndexStatusPartial  IndexStatus = "PARTIAL"
+	IndexStatusComplete IndexStatus = "COMPLETE"
+)
+
+// GeoReference is a (code, optional name) pair used for country, city, region,
+// neighbourhood and point-of-interest references on a Hotel.
+type GeoReference struct {
+	Code string
+	Name *string
 }
 
-// SearchResult is a page of hotels plus the total match count.
+// ChainReference is the hotel-chain reference projection.
+type ChainReference struct {
+	Code string
+	Name *string
+}
+
+// Coordinates is the lat/long pair embedded in a Hotel document.
+type Coordinates struct {
+	Latitude  float64
+	Longitude float64
+}
+
+// Hotel is the projection of a single hotel document returned to the UI.
+// Pointer fields and nil slices represent missing values in the index.
+type Hotel struct {
+	UniqueID         int64
+	IndexStatus      IndexStatus
+	HotelName        *string
+	SellStatus       *bool
+	StarRating       *string
+	Type             *string
+	Country          *GeoReference
+	City             *GeoReference
+	AdminRegion      *GeoReference
+	TouristicRegion  *GeoReference
+	NonAdminCity     *GeoReference
+	Neighbourhood    *GeoReference
+	Chain            *ChainReference
+	Facilities       []string
+	PointsOfInterest []GeoReference
+	ContentScore     *int
+	ReviewScore      *int
+	NumberOfReviews  *int
+	LocationScore    *int
+	Badges           []string
+	CreationDate     *int64
+	LastUpdateDate   *int64
+	Coordinates      *Coordinates
+}
+
+// SearchResult is a page of hotels plus the total match count and the two
+// "max" aggregations that the results page header displays.
 type SearchResult struct {
-	Hotels []Hotel
-	Total  int64
+	Hotels             []Hotel
+	Total              int64
+	Page               int
+	PageSize           int
+	LastUpdateDate     *int64
+	MaxNumberOfReviews *int
 }
 
 // SidebarFilterCounts holds the per-option badge counts (FILT-005).

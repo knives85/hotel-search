@@ -7,7 +7,7 @@ import (
 )
 
 func TestHealthz(t *testing.T) {
-	srv := NewServer("/hotel-search")
+	srv := NewServer("/hotel-search", Deps{})
 
 	req := httptest.NewRequest(http.MethodGet, "/healthz", nil)
 	rec := httptest.NewRecorder()
@@ -22,14 +22,13 @@ func TestHealthz(t *testing.T) {
 }
 
 func TestHotelsRouteRegistered(t *testing.T) {
-	srv := NewServer("/hotel-search")
+	srv := NewServer("/hotel-search", Deps{Search: stubSearchPort{}})
 
 	req := httptest.NewRequest(http.MethodGet, "/hotel-search/hotels", nil)
 	rec := httptest.NewRecorder()
 	srv.Handler().ServeHTTP(rec, req)
 
-	// The route exists but is not implemented yet: expect 501, not 404.
-	if rec.Code != http.StatusNotImplemented {
-		t.Fatalf("/hotels: got status %d, want %d", rec.Code, http.StatusNotImplemented)
+	if rec.Code == http.StatusNotFound {
+		t.Fatalf("/hotels not registered: got 404")
 	}
 }

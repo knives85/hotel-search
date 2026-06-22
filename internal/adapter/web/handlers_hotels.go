@@ -1,6 +1,9 @@
 package web
 
-import "net/http"
+import (
+	"encoding/json"
+	"net/http"
+)
 
 // Handlers for the /hotels routes. Each one currently returns 501 and will be
 // filled in as the OpenSearch/Postgres adapters and templates are ported.
@@ -11,11 +14,35 @@ func (s *Server) handleHotelsIndex(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if _, err := buildQuery(params); err != nil {
+	query, err := buildQuery(params)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	notImplemented(w, "GET /hotels")
+	result, err := s.deps.Search.Search(r.Context(), query)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	var hotelDto []map[string]any
+	for _, hotel := range result.Hotels {
+		hotelDto = append(hotelDto, map[string]any{
+			"uniqueId": hotel.UniqueID,
+			"name":     hotel.HotelName,
+		})
+	}
+
+	dto := map[string]any{
+		"total":  result.Total,
+		"hotels": hotelDto,
+	}
+
+	marshalled, err := json.Marshal(dto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.Write(marshalled)
 }
 
 func (s *Server) handleHotelsResults(w http.ResponseWriter, _ *http.Request) {

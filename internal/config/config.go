@@ -28,7 +28,7 @@ func Load() Config {
 		Addr:               env("PM_ADDR", ":8080"),
 		ContextPath:        env("PM_CONTEXT_PATH", "/hotel-search"),
 		PostgresDSN:        env("PM_POSTGRES_DSN", "postgres://hotel:hotel@localhost:5432/hotelsearch?sslmode=disable"),
-		OpenSearchEndpoint: env("PM_OPENSEARCH_ENDPOINT", "https://localhost:9200"),
+		OpenSearchEndpoint: env("PM_OPENSEARCH_ENDPOINT", "http://localhost:9200"),
 		OpenSearchRegion:   env("PM_OPENSEARCH_REGION", "eu-central-1"),
 		S3Bucket:           env("PM_S3_BUCKET", "hotel-search-qa"),
 		S3Region:           env("PM_S3_REGION", "eu-central-1"),
