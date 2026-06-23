@@ -2,6 +2,7 @@ package opensearch
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 
 	"github.com/knives85/hotel-search/internal/domain"
@@ -15,6 +16,7 @@ const (
 
 	aggMaxLastUpdate      = "agg_max_last_update"
 	aggMaxNumberOfReviews = "agg_max_number_of_reviews"
+	aggStarRating         = "agg_star_rating"
 )
 
 // buildSearchRequest serialises a HotelSearchQuery into the JSON body of an
@@ -35,6 +37,31 @@ func buildSearchRequest(q domain.HotelSearchQuery) ([]byte, error) {
 			aggMaxNumberOfReviews: maxAgg("number_of_reviews"),
 		},
 	}
+	return json.Marshal(body)
+}
+
+func buildSidebarCountRequest(q domain.HotelSearchQuery) ([]byte, error) {
+	selectedFilters := buildAllFilters(q)
+	byStarAggQuery := q
+	byStarAggQuery.StarRatings = nil
+	body := map[string]any{
+		"size": 0,
+		"query": map[string]any{
+			"bool": map[string]any{
+				"filter": selectedFilters,
+			},
+		},
+		"aggs": map[string]any{
+			aggStarRating: filterAgg("star_rating", buildAllFilters(byStarAggQuery), map[string]any{
+				"field":   "star_rating",
+				"size":    10,
+				"missing": "UNRATED",
+			}),
+		},
+	}
+
+	respAsJson, _ := json.MarshalIndent(body, "", "  ")
+	fmt.Printf("Search Request:\n%s\n", string(respAsJson))
 	return json.Marshal(body)
 }
 
@@ -171,6 +198,22 @@ func nestedQuery(path string, inner map[string]any) map[string]any {
 
 func maxAgg(field string) map[string]any {
 	return map[string]any{"max": map[string]any{"field": field}}
+}
+
+func filterAgg(filterKey string, filters []map[string]any, terms map[string]any) map[string]any {
+	return map[string]any{
+		"global": map[string]any{},
+		"aggs": map[string]any{
+			"f": map[string]any{
+				"filter": map[string]any{
+					"bool": map[string]any{"filter": filters},
+				},
+				"aggs": map[string]any{
+					"b": map[string]any{"terms": terms},
+				},
+			},
+		},
+	}
 }
 
 // missingFieldQuery → bool { must_not: [{ exists: field }] }.

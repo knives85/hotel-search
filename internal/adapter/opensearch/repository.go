@@ -66,7 +66,71 @@ func (r *Repository) Search(ctx context.Context, q domain.HotelSearchQuery) (dom
 
 // SidebarFilterCounts runs the terms aggregations for the badge counts.
 func (r *Repository) SidebarFilterCounts(ctx context.Context, q domain.HotelSearchQuery) (domain.SidebarFilterCounts, error) {
-	return domain.SidebarFilterCounts{}, domain.ErrNotImplemented
+	body, err := buildSidebarCountRequest(q)
+	if err != nil {
+		return domain.SidebarFilterCounts{}, fmt.Errorf("build sidebar count request: %w", err)
+	}
+
+	resp, err := r.client.Search(ctx, &opensearchapi.SearchReq{
+		Indices: []string{r.index},
+		Body:    bytes.NewReader(body),
+	})
+	if err != nil {
+		return domain.SidebarFilterCounts{}, fmt.Errorf("opensearch search: %w", err)
+	}
+
+	var aggs sidebarAggregationsResponse
+	if err := json.Unmarshal(resp.Aggregations, &aggs); err != nil {
+		return domain.SidebarFilterCounts{}, fmt.Errorf("decode aggregations: %w", err)
+	}
+
+	return domain.SidebarFilterCounts{
+		ByStarRating: aggs.StarRating.toMap(),
+	}, nil
+}
+
+// ---- Sidebar aggregation response shapes ----
+//
+// Three reusable building blocks:
+//   - bucket: a single (key, doc_count) row.
+//   - termsAgg: a plain `terms` aggregation (Semantics C — e.g. facility).
+//   - globalFilterTermsAgg: a `global > filter > terms` wrapper (Semantics B —
+//     used by every OR-type dimension to keep all options visible).
+//
+// Add new dimensions by adding fields to sidebarAggregationsResponse — one
+// json.Unmarshal decodes everything in a single pass.
+
+type bucket struct {
+	Key      string `json:"key"`
+	DocCount int64  `json:"doc_count"`
+}
+
+type termsAgg struct {
+	Buckets []bucket `json:"buckets"`
+}
+
+func (t termsAgg) toMap() map[string]int64 {
+	out := make(map[string]int64, len(t.Buckets))
+	for _, b := range t.Buckets {
+		out[b.Key] = b.DocCount
+	}
+	return out
+}
+
+// globalFilterTermsAgg matches the shape produced by filterAgg(): the outer
+// `global` slot, the inner `f` filter and the leaf `b` terms aggregation.
+type globalFilterTermsAgg struct {
+	F struct {
+		B termsAgg `json:"b"`
+	} `json:"f"`
+}
+
+func (g globalFilterTermsAgg) toMap() map[string]int64 { return g.F.B.toMap() }
+
+// sidebarAggregationsResponse is the slice of the OpenSearch response we care
+// about for the sidebar. One field per dimension keyed by its agg name.
+type sidebarAggregationsResponse struct {
+	StarRating globalFilterTermsAgg `json:"agg_star_rating"`
 }
 
 // Stats runs the aggregate stats query.
