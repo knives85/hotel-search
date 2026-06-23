@@ -20,7 +20,7 @@ func (s *Server) handleHotelsIndex(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	renderHTML(w, "index", result)
+	renderHTML(w, "index", indexView{Result: result, Query: query})
 }
 
 func (s *Server) handleHotelsResults(w http.ResponseWriter, r *http.Request) {

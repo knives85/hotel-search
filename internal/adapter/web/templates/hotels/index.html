@@ -4,20 +4,59 @@
     <meta charset="UTF-8">
     <title>Hotel Search</title>
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 20px; }
+        .layout { display: grid; grid-template-columns: 220px 1fr; gap: 20px; }
+        .filter-section { margin-bottom: 12px; }
+        .filter-section summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
+        .filter-title { display: inline-flex; align-items: center; gap: 6px; }
+        .filter-body { padding: 6px 0 6px 8px; }
+        .star-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
+        .stars { display: inline-flex; gap: 1px; color: #f5b800; }
+        .stars-empty { color: #888; font-style: italic; }
+        input[type="text"] { padding: 6px 8px; width: 100%; box-sizing: border-box; }
+    </style>
 </head>
 <body>
 <h1>Hotels</h1>
 
-<input type="text"
-       name="hotelName"
-       placeholder="Search by name..."
-       hx-get="/hotel-search/hotels/results"
-       hx-trigger="input changed delay:300ms"
-       hx-target="#results">
+<form hx-get="/hotel-search/hotels/results"
+      hx-trigger="input changed delay:300ms, change"
+      hx-target="#results"
+      hx-push-url="true">
 
-<div id="results">
-    {{template "results-table" .}}
-</div>
+    <div class="layout">
+        <aside>
+            <input type="text" name="hotelName" placeholder="Search by name..."
+                   value="{{with .Query.HotelName}}{{.}}{{end}}">
+
+            <details class="filter-section" open>
+                <summary><span class="filter-title">★ Star Rating</span></summary>
+                <div class="filter-body">
+                    {{range starOptions}}
+                    <div class="star-row">
+                        <input type="checkbox" id="star-{{.Value}}" name="starRatings" value="{{.Value}}"
+                               {{if contains $.Query.StarRatings .Value}}checked{{end}}>
+                        <label for="star-{{.Value}}">
+                            {{if gt .Count 0}}
+                                <span class="stars">{{range seq .Count}}<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>{{end}}</span>
+                            {{else}}
+                                <span class="stars-empty">Unrated</span>
+                            {{end}}
+                        </label>
+                    </div>
+                    {{end}}
+                </div>
+            </details>
+        </aside>
+
+        <main>
+            <div id="results">
+                {{template "results-table" .Result}}
+            </div>
+        </main>
+    </div>
+</form>
 </body>
 </html>
 {{end}}
