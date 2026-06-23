@@ -4,30 +4,38 @@
 {{end}}
 
 {{define "results-table"}}
-<p>{{.Total}} result(s)</p>
+<p class="results-summary">
+    Showing <strong>{{len .Hotels}}</strong> of <strong>{{.Total}}</strong> hotels
+</p>
 
-<table border="1" cellpadding="6" cellspacing="0">
-    <thead>
-    <tr>
-        <th>Internal ID</th>
-        <th>Name</th>
-        <th>Type</th>
-        <th>City</th>
-        <th>Country</th>
-        <th>Star Rating</th>
-    </tr>
-    </thead>
-    <tbody>
-    {{range .Hotels}}
-    <tr>
-        <td>{{.UniqueID}}</td>
-        <td>{{with .HotelName}}{{.}}{{else}}—{{end}}</td>
-        <td>{{with .Type}}{{.}}{{else}}—{{end}}</td>
-        <td>{{with .City}}{{or .Name .Code}}{{else}}—{{end}}</td>
-        <td>{{with .Country}}{{or .Name .Code}}{{else}}—{{end}}</td>
-        <td>{{with .StarRating}}{{.}}{{else}}—{{end}}</td>
-    </tr>
-    {{end}}
-    </tbody>
-</table>
+<div class="table-wrap">
+    <table>
+        <thead>
+        <tr>
+            <th>Internal ID</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>City</th>
+            <th>Country</th>
+            <th>Star Rating</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{range .Hotels}}
+        <tr>
+            <td class="id-cell">{{.UniqueID}}</td>
+            <td>{{with .HotelName}}{{.}}{{else}}—{{end}}</td>
+            <td>{{with .Type}}{{.}}{{else}}—{{end}}</td>
+            <td>{{with .City}}{{or .Name .Code}}{{else}}—{{end}}</td>
+            <td>{{with .Country}}{{or .Name .Code}}{{else}}—{{end}}</td>
+            <td>{{with .StarRating}}{{.}}{{else}}—{{end}}</td>
+        </tr>
+        {{else}}
+        <tr class="empty-row">
+            <td colspan="6">No hotels match the current filters.</td>
+        </tr>
+        {{end}}
+        </tbody>
+    </table>
+</div>
 {{end}}

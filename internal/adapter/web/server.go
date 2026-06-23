@@ -41,6 +41,9 @@ func (s *Server) routes() {
 
 	p := s.contextPath
 
+	// Embedded static assets (CSS, JS, fonts).
+	mountStatic(s.mux, p)
+
 	// Hotel search — the heart of the module.
 	s.mux.HandleFunc("GET "+p+"/hotels", s.handleHotelsIndex)
 	s.mux.HandleFunc("GET "+p+"/hotels/results", s.handleHotelsResults)
