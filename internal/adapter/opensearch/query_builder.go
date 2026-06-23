@@ -17,6 +17,7 @@ const (
 	aggMaxLastUpdate      = "agg_max_last_update"
 	aggMaxNumberOfReviews = "agg_max_number_of_reviews"
 	aggStarRating         = "agg_star_rating"
+	aggAccType            = "agg_acc_type"
 )
 
 // buildSearchRequest serialises a HotelSearchQuery into the JSON body of an
@@ -44,6 +45,8 @@ func buildSidebarCountRequest(q domain.HotelSearchQuery) ([]byte, error) {
 	selectedFilters := buildAllFilters(q)
 	byStarAggQuery := q
 	byStarAggQuery.StarRatings = nil
+	byAccTypeQuery := q
+	byAccTypeQuery.Types = nil
 	body := map[string]any{
 		"size": 0,
 		"query": map[string]any{
@@ -56,6 +59,10 @@ func buildSidebarCountRequest(q domain.HotelSearchQuery) ([]byte, error) {
 				"field":   "star_rating",
 				"size":    10,
 				"missing": "UNRATED",
+			}),
+			aggAccType: filterAgg("type", buildAllFilters(byAccTypeQuery), map[string]any{
+				"field": "type",
+				"size":  10,
 			}),
 		},
 	}

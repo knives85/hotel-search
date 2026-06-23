@@ -1,0 +1,5 @@
+{{define "acc-type-badges-oob"}}
+{{range accTypesOptions}}
+<span id="badge-t-{{.}}" hx-swap-oob="true" class="facet-badge">{{index $.ByAccType .}}</span>
+{{end}}
+{{end}}

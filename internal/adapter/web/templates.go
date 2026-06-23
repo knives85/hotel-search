@@ -22,9 +22,10 @@ var templates = template.Must(
 
 // templateFuncs are the helpers referenced from the .html files.
 var templateFuncs = template.FuncMap{
-	"seq":         seq,
-	"contains":    slices.Contains[[]string, string],
-	"starOptions": func() []starOption { return starOptionsList },
+	"seq":             seq,
+	"contains":        slices.Contains[[]string, string],
+	"starOptions":     func() []starOption { return starOptionsList },
+	"accTypesOptions": func() []string { return accTypesList },
 }
 
 // indexView is the data passed to the "index" template: the search result for
@@ -59,6 +60,23 @@ var starOptionsList = []starOption{
 	{Value: "TWO", Count: 2},
 	{Value: "ONE", Count: 1},
 	{Value: "UNRATED", Count: 0},
+}
+
+var accTypesList = []string{
+	"Aparthotels",
+	"Apartments",
+	"Bed and Breakfasts",
+	"Boats and Cruises",
+	"Campsites",
+	"Country Houses",
+	"Guest Houses",
+	"Hostels",
+	"Hotels",
+	"Motels",
+	"Resorts",
+	"Riads",
+	"Ryokans",
+	"Villas",
 }
 
 // seq returns [1, n] so templates can do `{{range seq n}}` — html/template

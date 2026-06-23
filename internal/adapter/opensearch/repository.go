@@ -86,6 +86,7 @@ func (r *Repository) SidebarFilterCounts(ctx context.Context, q domain.HotelSear
 
 	return domain.SidebarFilterCounts{
 		ByStarRating: aggs.StarRating.toMap(),
+		ByAccType:    aggs.AccType.toMap(),
 	}, nil
 }
 
@@ -131,6 +132,7 @@ func (g globalFilterTermsAgg) toMap() map[string]int64 { return g.F.B.toMap() }
 // about for the sidebar. One field per dimension keyed by its agg name.
 type sidebarAggregationsResponse struct {
 	StarRating globalFilterTermsAgg `json:"agg_star_rating"`
+	AccType    globalFilterTermsAgg `json:"agg_acc_type"`
 }
 
 // Stats runs the aggregate stats query.

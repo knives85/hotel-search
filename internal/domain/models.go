@@ -141,6 +141,7 @@ type SearchResult struct {
 // TODO: port the real aggregation buckets per filter dimension.
 type SidebarFilterCounts struct {
 	ByStarRating map[string]int64
+	ByAccType    map[string]int64
 }
 
 // HotelStats holds the aggregate stats shown above the results table.
