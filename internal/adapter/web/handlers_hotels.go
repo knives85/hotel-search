@@ -23,8 +23,23 @@ func (s *Server) handleHotelsIndex(w http.ResponseWriter, r *http.Request) {
 	renderHTML(w, "index", result)
 }
 
-func (s *Server) handleHotelsResults(w http.ResponseWriter, _ *http.Request) {
-	notImplemented(w, "GET /hotels/results")
+func (s *Server) handleHotelsResults(w http.ResponseWriter, r *http.Request) {
+	params, err := parseHotelSearchParams(r.URL.Query())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	query, err := buildQuery(params)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	result, err := s.deps.Search.Search(r.Context(), query)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	renderHTML(w, "results-table", result)
 }
 
 func (s *Server) handleHotelsStats(w http.ResponseWriter, _ *http.Request) {

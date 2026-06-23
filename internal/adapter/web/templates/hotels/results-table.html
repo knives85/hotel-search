@@ -1,0 +1,28 @@
+{{define "results-table"}}
+<p>{{.Total}} result(s)</p>
+
+<table border="1" cellpadding="6" cellspacing="0">
+    <thead>
+    <tr>
+        <th>Internal ID</th>
+        <th>Name</th>
+        <th>Type</th>
+        <th>City</th>
+        <th>Country</th>
+        <th>Star Rating</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{range .Hotels}}
+    <tr>
+        <td>{{.UniqueID}}</td>
+        <td>{{with .HotelName}}{{.}}{{else}}—{{end}}</td>
+        <td>{{with .Type}}{{.}}{{else}}—{{end}}</td>
+        <td>{{with .City}}{{or .Name .Code}}{{else}}—{{end}}</td>
+        <td>{{with .Country}}{{or .Name .Code}}{{else}}—{{end}}</td>
+        <td>{{with .StarRating}}{{.}}{{else}}—{{end}}</td>
+    </tr>
+    {{end}}
+    </tbody>
+</table>
+{{end}}
