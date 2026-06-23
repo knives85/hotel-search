@@ -1,3 +1,8 @@
+{{define "results-with-oob"}}
+{{template "results-table" .Result}}
+{{template "star-rating-badges-oob" .Counts}}
+{{end}}
+
 {{define "results-table"}}
 <p>{{.Total}} result(s)</p>
 

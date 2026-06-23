@@ -20,7 +20,12 @@ func (s *Server) handleHotelsIndex(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	renderHTML(w, "index", indexView{Result: result, Query: query})
+	counts, err := s.deps.Search.SidebarFilterCounts(r.Context(), query)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	renderHTML(w, "index", indexView{Result: result, Query: query, Counts: counts})
 }
 
 func (s *Server) handleHotelsResults(w http.ResponseWriter, r *http.Request) {
@@ -39,7 +44,12 @@ func (s *Server) handleHotelsResults(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	renderHTML(w, "results-table", result)
+	counts, err := s.deps.Search.SidebarFilterCounts(r.Context(), query)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	renderHTML(w, "results-with-oob", resultsView{Result: result, Counts: counts})
 }
 
 func (s *Server) handleHotelsStats(w http.ResponseWriter, _ *http.Request) {

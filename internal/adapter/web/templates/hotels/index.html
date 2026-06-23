@@ -14,6 +14,7 @@
         .star-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
         .stars { display: inline-flex; gap: 1px; color: #f5b800; }
         .stars-empty { color: #888; font-style: italic; }
+        .facet-badge { margin-left: auto; background: #eee; color: #555; padding: 1px 7px; border-radius: 8px; font-size: 11px; }
         input[type="text"] { padding: 6px 8px; width: 100%; box-sizing: border-box; }
     </style>
 </head>
@@ -44,6 +45,7 @@
                                 <span class="stars-empty">Unrated</span>
                             {{end}}
                         </label>
+                        <span id="badge-star-{{.Value}}" class="facet-badge">{{index $.Counts.ByStarRating .Value}}</span>
                     </div>
                     {{end}}
                 </div>

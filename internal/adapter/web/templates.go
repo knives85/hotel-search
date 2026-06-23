@@ -28,10 +28,20 @@ var templateFuncs = template.FuncMap{
 }
 
 // indexView is the data passed to the "index" template: the search result for
-// the table and the query so the filter form can mark its inputs as checked.
+// the table, the query so the filter form can mark its inputs as checked, and
+// the sidebar counts so each filter option shows its hotel count.
 type indexView struct {
 	Result domain.SearchResult
 	Query  domain.HotelSearchQuery
+	Counts domain.SidebarFilterCounts
+}
+
+// resultsView is the data for the "results-with-oob" template returned by the
+// HTMX endpoint /hotels/results: the table body plus the OOB updates needed
+// to keep the sidebar in sync without re-rendering the whole page.
+type resultsView struct {
+	Result domain.SearchResult
+	Counts domain.SidebarFilterCounts
 }
 
 // starOption is a (rating-key, star-count) pair driving the star-rating

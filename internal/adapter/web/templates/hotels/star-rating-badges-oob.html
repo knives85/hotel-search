@@ -1,0 +1,5 @@
+{{define "star-rating-badges-oob"}}
+{{range starOptions}}
+<span id="badge-star-{{.Value}}" hx-swap-oob="true" class="facet-badge">{{index $.ByStarRating .Value}}</span>
+{{end}}
+{{end}}
