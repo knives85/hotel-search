@@ -1,15 +1,11 @@
 # Hotel Search — app module (Go)
 
-A Go reimplementation of the **`app`** module of Hotel Search: the
-read/query side that powers hotel search, filtering and faceted badge counts
+A Go implementation of a portal to browse Hotels. The
+solution provides filtering and faceted badge counts
 over **OpenSearch**, with a **PostgreSQL** companion for registries (geo,
-facilities, chains), saved inventory lists and jobs, and **S3** for job
-artifacts. The existing HTMX UI is meant to stay unchanged — the HTTP routes
-and URLs mirror the original controllers.
+facilities, chains). The UI is implemented with HTMX.
 
-> This is a learning/portfolio port. It is intentionally a skeleton: the routes
-> are wired but every handler returns `501 Not Implemented` until its adapter is
-> built.
+> This is a learning project.
 
 ## Architecture
 
@@ -60,15 +56,6 @@ curl -i localhost:8080/hotel-search/hotels           # 501 (route wired, not imp
 Configuration is read from the environment (see `internal/config`), e.g.
 `PM_ADDR`, `PM_CONTEXT_PATH`, `PM_POSTGRES_DSN`, `PM_OPENSEARCH_ENDPOINT`,
 `PM_OPENSEARCH_REGION`, `PM_S3_BUCKET`.
-
-## Roadmap
-
-1. Port the `hotels` read path first: domain `HotelSearchQuery`, the OpenSearch
-   query + `terms` aggregations, the results/stats/filter-counts handlers.
-2. Add integration tests with `testcontainers-go` (OpenSearch + Postgres).
-3. Port the Postgres registries and the suggesters.
-4. Port the HTMX templates (`internal/adapter/web/templates`).
-5. Optional: re-run a small latency benchmark vs the Kotlin version.
 
 ## Note
 
